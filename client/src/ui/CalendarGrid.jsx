@@ -63,7 +63,7 @@ function DayColumn({ day, blocks, onSelectBlock, onCreateDraft }) {
   const totalHours = END_HOUR - START_HOUR;
   const height = totalHours * HOUR_HEIGHT;
 
-  function handleDoubleClick(e) {
+  function createDraftAtClick(e) {
     const rect = e.currentTarget.getBoundingClientRect();
     const y = e.clientY - rect.top;
     const minutesFromStart = clamp(Math.floor((y / HOUR_HEIGHT) * 60 / 15) * 15, 0, totalHours * 60 - 15);
@@ -78,9 +78,10 @@ function DayColumn({ day, blocks, onSelectBlock, onCreateDraft }) {
       style={{
         height,
       }}
-      onDoubleClick={handleDoubleClick}
-      role="presentation"
-      title="Double-click to add a 1-hour block"
+      onClick={createDraftAtClick}
+      role="region"
+      aria-label={`${format(day, "EEEE, MMM d")}: click empty time to add a one-hour block.`}
+      title="Click empty space to add a 1-hour block here"
     >
       {Array.from({ length: totalHours }, (_, i) => (
         <div
@@ -117,7 +118,10 @@ function BlockPill({ block, day, onSelect }) {
   return (
     <button
       type="button"
-      onClick={onSelect}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect();
+      }}
       className={`btn block-pill ${variant}`}
       style={{
         top: clamp(top, 0, 99999),
