@@ -129,7 +129,9 @@ export function CalendarPage() {
           <div>
             <strong>{busy ? "Loading blocks…" : `${blocks.length} block${blocks.length === 1 ? "" : "s"} in view`}</strong>
             <span className="muted" style={{ marginLeft: 10 }}>
-              Locked = fixed commitment · overlaps rejected by the server (touching times are OK).
+              {view === "month"
+                ? "Shift+click a day to add a block. Otherwise click a day for the hourly view."
+                : "Click empty space in the grid to add a 1-hour block. Locked = fixed · overlaps rejected (touching OK)."}
             </span>
           </div>
           <div className="muted cal-hint" title="Current fetch window">
@@ -141,8 +143,9 @@ export function CalendarPage() {
           <div className="empty-state" style={{ marginBottom: 14 }}>
             <h3>No blocks in this range</h3>
             <p className="muted">
-              Double-click a time slot in day/week view, use <strong style={{ color: "var(--text)" }}>+ New block</strong>, or switch to{" "}
-              <strong style={{ color: "var(--text)" }}>Month</strong> for the big picture.
+              In day/week view, <strong style={{ color: "var(--text)" }}>click empty space</strong> on the timeline to add an hour, use{" "}
+              <strong style={{ color: "var(--text)" }}>+ New block</strong>, or open{" "}
+              <strong style={{ color: "var(--text)" }}>Month</strong> and Shift+click a day for a quick add.
             </p>
           </div>
         ) : null}

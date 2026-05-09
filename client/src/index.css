@@ -403,12 +403,19 @@ select.input:focus {
   border-radius: var(--radius-md);
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  cursor: pointer;
 }
 
 .day-column:hover {
-  border-color: rgba(167, 139, 250, 0.25);
+  border-color: rgba(167, 139, 250, 0.35);
   box-shadow: var(--shadow-glow);
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.day-column:focus-visible {
+  outline: 2px solid rgba(167, 139, 250, 0.65);
+  outline-offset: 2px;
 }
 
 .day-column__line {
@@ -416,33 +423,57 @@ select.input:focus {
   left: 0;
   right: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+  pointer-events: none;
 }
 
 .block-pill {
   position: absolute;
   left: 8px;
   right: 8px;
+  z-index: 3;
   text-align: left;
   padding: 10px 12px;
   overflow: hidden;
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: transform var(--transition-fast), filter var(--transition-fast);
+  cursor: grab;
+  pointer-events: auto;
+  transition:
+    transform var(--transition-fast),
+    filter var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .block-pill:hover {
-  filter: brightness(1.08);
-  z-index: 2;
+  filter: brightness(1.12) saturate(1.05);
+  z-index: 4;
+  transform: scale(1.015);
+  box-shadow: 0 8px 28px -6px rgba(0, 0, 0, 0.55);
+}
+
+.block-pill:active {
+  cursor: grabbing;
+  transform: scale(1.01);
 }
 
 .block-pill--flex {
-  background: linear-gradient(180deg, rgba(167, 139, 250, 0.35), rgba(139, 92, 246, 0.14));
-  border: 1px solid rgba(167, 139, 250, 0.45);
+  background: linear-gradient(180deg, rgba(167, 139, 250, 0.38), rgba(139, 92, 246, 0.16));
+  border: 1px solid rgba(167, 139, 250, 0.5);
+}
+
+.block-pill--flex:hover {
+  border-color: rgba(196, 181, 253, 0.85);
+  box-shadow: 0 8px 32px -8px rgba(139, 92, 246, 0.55);
 }
 
 .block-pill--locked {
-  background: linear-gradient(180deg, rgba(248, 113, 113, 0.35), rgba(248, 113, 113, 0.12));
-  border: 1px solid rgba(248, 113, 113, 0.45);
+  background: linear-gradient(180deg, rgba(248, 113, 113, 0.38), rgba(248, 113, 113, 0.14));
+  border: 1px solid rgba(248, 113, 113, 0.55);
+}
+
+.block-pill--locked:hover {
+  border-color: rgba(252, 165, 165, 0.85);
+  box-shadow: 0 8px 32px -8px rgba(248, 113, 113, 0.45);
 }
 
 /* ----- Month grid ----- */
@@ -488,6 +519,7 @@ select.input:focus {
 
 .month-cell:hover {
   border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(139, 92, 246, 0.07);
 }
 
 .month-cell:active {
@@ -518,6 +550,23 @@ select.input:focus {
   border-radius: 8px !important;
   font-size: 0.6875rem !important;
   text-align: left;
+  cursor: grab !important;
+  transition:
+    transform var(--transition-fast),
+    filter var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast) !important;
+}
+
+.month-block-btn:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+  z-index: 2;
+  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.45);
+}
+
+.month-block-btn:active {
+  cursor: grabbing !important;
 }
 
 /* ----- Empty state ----- */

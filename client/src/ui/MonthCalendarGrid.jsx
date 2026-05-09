@@ -48,13 +48,13 @@ export function MonthCalendarGrid({ monthAnchor, days, blocks, onPickDay, onSele
               const inMonth = isSameMonth(day, monthAnchor);
               const today = isToday(day);
 
-              function handleCellClick() {
+              function handleCellClick(e) {
+                if (e.shiftKey) {
+                  e.preventDefault();
+                  onCreateDraft({ draft: true, date: day });
+                  return;
+                }
                 onPickDay(day);
-              }
-
-              function handleDoubleClick(e) {
-                e.stopPropagation();
-                onCreateDraft({ draft: true, date: day });
               }
 
               const cellClass = ["month-cell", !inMonth ? "month-cell--fade" : "", today ? "month-cell--today" : ""]
@@ -67,15 +67,15 @@ export function MonthCalendarGrid({ monthAnchor, days, blocks, onPickDay, onSele
                   role="button"
                   tabIndex={0}
                   onClick={handleCellClick}
-                  onDoubleClick={handleDoubleClick}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      onPickDay(day);
+                      if (e.shiftKey) onCreateDraft({ draft: true, date: day });
+                      else onPickDay(day);
                     }
                   }}
                   className={cellClass}
-                  title="Click: day view · Double-click: new block"
+                  title="Click: open day · Shift+click: new block · Click pill: edit"
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
                     <span className={`month-cell__day ${today ? "month-cell__day--today" : ""}`}>{format(day, "d")}</span>
