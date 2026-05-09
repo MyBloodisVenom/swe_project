@@ -14,6 +14,10 @@ export function AuthPage() {
 
   const title = useMemo(() => (mode === "login" ? "Welcome back" : "Create your account"), [mode]);
 
+  const passwordOk = password.length >= 8;
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const canSubmit = emailOk && passwordOk && !busy;
+
   useEffect(() => {
     if (token) nav("/");
   }, [nav, token]);
@@ -21,10 +25,11 @@ export function AuthPage() {
   async function submit(e) {
     e.preventDefault();
     setError("");
+    if (!canSubmit) return;
     setBusy(true);
     try {
       const path = mode === "login" ? "/api/auth/login" : "/api/auth/register";
-      const data = await apiFetch(path, { method: "POST", body: { email, password } });
+      const data = await apiFetch(path, { method: "POST", body: { email: email.trim(), password } });
       setSession(data.token, data.user);
       nav("/");
     } catch (err) {
@@ -35,43 +40,62 @@ export function AuthPage() {
   }
 
   return (
-    <div className="container">
-      <div className="card" style={{ padding: 20, maxWidth: 520, margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
+    <div className="auth-shell">
+      <div className="card auth-card">
+        <div className="auth-brand" aria-hidden />
+        <div className="auth-head">
           <div>
-            <div style={{ fontSize: 12, letterSpacing: 0.4 }} className="muted">
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }} className="muted">
               Time-Block Calendar
             </div>
-            <h2 style={{ margin: "6px 0 0" }}>{title}</h2>
+            <h1>{title}</h1>
           </div>
 
-          <div style={{ display: "flex", gap: 8 }}>
+          <div className="segmented" role="tablist" aria-label="Auth mode">
             <button
-              className={`btn ${mode === "login" ? "primary" : ""}`}
+              className={`btn btn-sm ${mode === "login" ? "primary" : ""}`}
               type="button"
-              onClick={() => setMode("login")}
+              role="tab"
+              aria-selected={mode === "login"}
+              onClick={() => {
+                setMode("login");
+                setError("");
+              }}
             >
               Login
             </button>
             <button
-              className={`btn ${mode === "register" ? "primary" : ""}`}
+              className={`btn btn-sm ${mode === "register" ? "primary" : ""}`}
               type="button"
-              onClick={() => setMode("register")}
+              role="tab"
+              aria-selected={mode === "register"}
+              onClick={() => {
+                setMode("register");
+                setError("");
+              }}
             >
               Register
             </button>
           </div>
         </div>
 
-        <form onSubmit={submit} style={{ marginTop: 16, display: "grid", gap: 12 }}>
+        <form onSubmit={submit} style={{ marginTop: 22, display: "grid", gap: 14 }}>
           <div className="field">
-            <label>Email</label>
-            <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+            <label htmlFor="auth-email">Email</label>
+            <input
+              id="auth-email"
+              className={`input ${email.length > 0 && !emailOk ? "input-error" : ""}`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              inputMode="email"
+            />
           </div>
           <div className="field">
-            <label>Password</label>
+            <label htmlFor="auth-password">Password</label>
             <input
-              className="input"
+              id="auth-password"
+              className={`input ${password.length > 0 && !passwordOk ? "input-error" : ""}`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type="password"
@@ -80,21 +104,20 @@ export function AuthPage() {
           </div>
 
           {error ? (
-            <div style={{ border: "1px solid rgba(239,68,68,0.45)", background: "rgba(239,68,68,0.12)", padding: 10, borderRadius: 10 }}>
-              {error}
+            <div className="alert alert-error" role="alert">
+              <div className="alert-body">{error}</div>
             </div>
           ) : null}
 
-          <button className="btn primary" disabled={busy} type="submit">
-            {busy ? "Please wait…" : mode === "login" ? "Login" : "Create account"}
+          <button className="btn primary" disabled={!canSubmit} type="submit">
+            {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
           </button>
 
-          <div className="muted" style={{ fontSize: 12 }}>
-            Password must be at least 8 characters (backend rule).
-          </div>
+          <p className="muted" style={{ fontSize: 12, margin: 0, lineHeight: 1.5 }}>
+            Password must be at least <strong style={{ color: "var(--text)" }}>8 characters</strong>. Use a unique password you do not reuse elsewhere.
+          </p>
         </form>
       </div>
     </div>
   );
 }
-

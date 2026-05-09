@@ -1,5 +1,5 @@
 import { format, parseISO } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { apiFetch } from "../api.js";
 
 function isoToInputs(iso) {
@@ -16,6 +16,8 @@ function localToIso(dateStr, timeStr) {
 
 export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) {
   const isEdit = !!value && !value.draft;
+  const titleRef = useRef(null);
+
   const initial = useMemo(() => {
     if (!value) return null;
     if (value.draft) {
@@ -55,17 +57,54 @@ export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) 
     setBusy(false);
   }, [initial, open]);
 
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    const t = requestAnimationFrame(() => titleRef.current?.focus());
+    return () => cancelAnimationFrame(t);
+  }, [open, value]);
+
   if (!open) return null;
   if (!form) return null;
 
   async function save() {
     setError("");
+    const titleTrim = form.title.trim();
+    if (!titleTrim) {
+      setError("Please enter a title.");
+      titleRef.current?.focus();
+      return;
+    }
+
+    let startIso;
+    let endIso;
+    try {
+      startIso = localToIso(form.date, form.startTime);
+      endIso = localToIso(form.date, form.endTime);
+    } catch {
+      setError("Invalid date or time.");
+      return;
+    }
+
+    if (new Date(endIso) <= new Date(startIso)) {
+      setError("End time must be after start time (same calendar day).");
+      return;
+    }
+
     setBusy(true);
     try {
       const payload = {
-        title: form.title.trim(),
-        start_time: localToIso(form.date, form.startTime),
-        end_time: localToIso(form.date, form.endTime),
+        title: titleTrim,
+        start_time: startIso,
+        end_time: endIso,
         importance: Number(form.importance),
         location: form.location.trim() ? form.location.trim() : null,
         type: form.type,
@@ -93,6 +132,7 @@ export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) 
       onDeleted();
     } catch (err) {
       setError(err.message || "Failed to delete");
+    } finally {
       setBusy(false);
     }
   }
@@ -101,40 +141,44 @@ export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) 
     <div
       role="dialog"
       aria-modal="true"
+      aria-labelledby="block-modal-title"
+      className="modal-backdrop"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.6)",
-        display: "grid",
-        placeItems: "center",
-        padding: 18,
-        zIndex: 50,
-      }}
     >
-      <div className="card" style={{ width: "min(720px, 100%)", padding: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
+      <div className="card modal-panel">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
           <div>
-            <div className="muted" style={{ fontSize: 12 }}>
+            <div className="muted" style={{ fontSize: 12, fontWeight: 600 }}>
               {isEdit ? "Edit block" : "New block"}
             </div>
-            <div style={{ fontSize: 18, fontWeight: 650 }}>{form.title?.trim() ? form.title : "Untitled"}</div>
+            <h2 id="block-modal-title" style={{ margin: "6px 0 0", fontSize: "1.25rem", fontWeight: 700 }}>
+              {form.title?.trim() ? form.title : "Untitled"}
+            </h2>
           </div>
-          <button className="btn" type="button" onClick={onClose}>
+          <button className="btn btn-sm" type="button" onClick={onClose}>
             Close
           </button>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12, marginTop: 12 }}>
+        <div className="modal-fields">
           <div className="field">
-            <label>Title</label>
-            <input className="input" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
+            <label htmlFor="block-title">Title</label>
+            <input
+              ref={titleRef}
+              id="block-title"
+              className={`input ${error && !form.title.trim() ? "input-error" : ""}`}
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              placeholder="e.g. Deep work, Lecture, Gym"
+              autoComplete="off"
+            />
           </div>
           <div className="field">
-            <label>Date</label>
+            <label htmlFor="block-date">Date</label>
             <input
+              id="block-date"
               className="input"
               type="date"
               value={form.date}
@@ -143,8 +187,9 @@ export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) 
           </div>
 
           <div className="field">
-            <label>Start time</label>
+            <label htmlFor="block-start">Start</label>
             <input
+              id="block-start"
               className="input"
               type="time"
               value={form.startTime}
@@ -152,8 +197,9 @@ export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) 
             />
           </div>
           <div className="field">
-            <label>End time</label>
+            <label htmlFor="block-end">End</label>
             <input
+              id="block-end"
               className="input"
               type="time"
               value={form.endTime}
@@ -162,8 +208,9 @@ export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) 
           </div>
 
           <div className="field">
-            <label>Importance (1–5)</label>
+            <label htmlFor="block-importance">Importance (1–5)</label>
             <select
+              id="block-importance"
               className="input"
               value={form.importance}
               onChange={(e) => setForm((f) => ({ ...f, importance: Number(e.target.value) }))}
@@ -177,33 +224,34 @@ export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) 
           </div>
 
           <div className="field">
-            <label>Type</label>
-            <select className="input" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
+            <label htmlFor="block-type">Type</label>
+            <select id="block-type" className="input" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
               <option value="flexible">Flexible</option>
               <option value="locked">Locked</option>
             </select>
           </div>
 
-          <div className="field" style={{ gridColumn: "1 / -1" }}>
-            <label>Location (optional)</label>
+          <div className="field field--full">
+            <label htmlFor="block-location">Location (optional)</label>
             <input
+              id="block-location"
               className="input"
               value={form.location}
               onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
-              placeholder="e.g. Library, Office, Zoom"
+              placeholder="Library, Zoom link, campus room…"
             />
           </div>
         </div>
 
         {error ? (
-          <div style={{ marginTop: 12, border: "1px solid rgba(239,68,68,0.45)", background: "rgba(239,68,68,0.12)", padding: 10, borderRadius: 10 }}>
-            {error}
+          <div className="alert alert-error" style={{ marginTop: 14 }} role="alert">
+            <div className="alert-body">{error}</div>
           </div>
         ) : null}
 
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 14, alignItems: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 18, alignItems: "center", flexWrap: "wrap" }}>
           <div className="muted" style={{ fontSize: 12 }}>
-            Overlaps are blocked by the API (HTTP 409).
+            Tip: overlapping blocks return HTTP 409 from the API.
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>
@@ -221,4 +269,3 @@ export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) 
     </div>
   );
 }
-
