@@ -19,7 +19,7 @@ const blockUpsertSchema = z.object({
   title: z.string().trim().min(1).max(120),
   start_time: z.string().datetime(),
   end_time: z.string().datetime(),
-  importance: z.number().int().min(1).max(5).default(3),
+  importance: z.coerce.number().int().min(1).max(5).default(3),
   location: z.string().trim().max(120).optional().nullable(),
   type: blockTypeSchema,
 });

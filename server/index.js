@@ -1,33 +1,24 @@
-require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const { PORT, JWT_SECRET, DB_PATH, corsOptions, isProd } = require("./config");
 const { openDb } = require("./db");
 const { makeAuthMiddleware } = require("./auth");
 const { registerSchema, loginSchema, blockUpsertSchema } = require("./validation");
-
-const PORT = Number(process.env.PORT || 5175);
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
-const DB_PATH = process.env.DB_PATH || "./data.db";
+const { formatZodError } = require("./util/zodFormat");
 
 const db = openDb(DB_PATH);
 
 const app = express();
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const auth = makeAuthMiddleware({ jwtSecret: JWT_SECRET });
 
 function issueToken(user) {
   return jwt.sign({ email: user.email }, JWT_SECRET, { subject: String(user.id), expiresIn: "7d" });
-}
-
-function overlaps(aStart, aEnd, bStart, bEnd) {
-  // Half-open intervals: [start, end) so touching is allowed.
-  return aStart < bEnd && bStart < aEnd;
 }
 
 function hasOverlap({ userId, startIso, endIso, excludeId = null }) {
@@ -50,7 +41,7 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 app.post("/api/auth/register", (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
+  if (!parsed.success) return res.status(400).json({ error: formatZodError(parsed) });
 
   const { email, password } = parsed.data;
   const existing = db.prepare("SELECT id FROM users WHERE email = ?").get(email);
@@ -65,7 +56,7 @@ app.post("/api/auth/register", (req, res) => {
 
 app.post("/api/auth/login", (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
+  if (!parsed.success) return res.status(400).json({ error: formatZodError(parsed) });
 
   const { email, password } = parsed.data;
   const user = db.prepare("SELECT id, email, password_hash FROM users WHERE email = ?").get(email);
@@ -117,7 +108,7 @@ app.get("/api/blocks", auth, (req, res) => {
 
 app.post("/api/blocks", auth, (req, res) => {
   const parsed = blockUpsertSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
+  if (!parsed.success) return res.status(400).json({ error: formatZodError(parsed) });
   const b = parsed.data;
 
   if (b.end_time <= b.start_time) return res.status(400).json({ error: "end_time must be after start_time" });
@@ -156,7 +147,7 @@ app.put("/api/blocks/:id", auth, (req, res) => {
   if (!existing) return res.status(404).json({ error: "Block not found" });
 
   const parsed = blockUpsertSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
+  if (!parsed.success) return res.status(400).json({ error: formatZodError(parsed) });
   const b = parsed.data;
 
   if (b.end_time <= b.start_time) return res.status(400).json({ error: "end_time must be after start_time" });
@@ -202,7 +193,14 @@ app.delete("/api/blocks/:id", auth, (req, res) => {
   return res.status(204).send();
 });
 
+app.use((req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
+
 app.listen(PORT, () => {
   console.log(`API listening on http://localhost:${PORT}`);
+  if (!isProd) {
+    console.log(`[config] SQLite database: ${DB_PATH}`);
+  }
 });
 

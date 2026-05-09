@@ -94,6 +94,13 @@ export function CalendarPage() {
     return `${format(range.start, "MMM d")} – ${format(range.end, "MMM d")}`;
   }, [anchorDate, range.end, range.start, view]);
 
+  const rangeLabel = useMemo(
+    () => `${format(range.start, "MMM d")} → ${format(range.end, "MMM d, yyyy")}`,
+    [range.start, range.end]
+  );
+
+  const showEmptyHint = !busy && !error && blocks.length === 0 && view !== "month";
+
   return (
     <div className="container">
       <TopBar
@@ -109,21 +116,36 @@ export function CalendarPage() {
       />
 
       {error ? (
-        <div className="card" style={{ padding: 12, marginBottom: 12, borderColor: "rgba(239,68,68,0.35)" }}>
-          {error}
+        <div className="alert alert-error" role="alert">
+          <div className="alert-body">{error}</div>
+          <button className="btn btn-sm primary" type="button" onClick={() => load()}>
+            Retry
+          </button>
         </div>
       ) : null}
 
-      <div className="card" style={{ padding: 12 }}>
-        <div className="muted" style={{ fontSize: 12, marginBottom: 10, display: "flex", justifyContent: "space-between" }}>
+      <div className="card card-dense">
+        <div className="cal-toolbar">
           <div>
-            <strong style={{ color: "var(--text)" }}>{busy ? "Loading…" : `${blocks.length} blocks`}</strong>
-            <span style={{ marginLeft: 10 }}>
-              Locked blocks are non-negotiable; overlap is prevented for all blocks (MVP rule).
+            <strong>{busy ? "Loading blocks…" : `${blocks.length} block${blocks.length === 1 ? "" : "s"} in view`}</strong>
+            <span className="muted" style={{ marginLeft: 10 }}>
+              Locked = fixed commitment · overlaps rejected by the server (touching times are OK).
             </span>
           </div>
-          <div style={{ fontFamily: "var(--mono)" }}>API: /api/blocks</div>
+          <div className="muted cal-hint" title="Current fetch window">
+            {rangeLabel}
+          </div>
         </div>
+
+        {showEmptyHint ? (
+          <div className="empty-state" style={{ marginBottom: 14 }}>
+            <h3>No blocks in this range</h3>
+            <p className="muted">
+              Double-click a time slot in day/week view, use <strong style={{ color: "var(--text)" }}>+ New block</strong>, or switch to{" "}
+              <strong style={{ color: "var(--text)" }}>Month</strong> for the big picture.
+            </p>
+          </div>
+        ) : null}
 
         {view === "month" ? (
           <MonthCalendarGrid
@@ -159,4 +181,3 @@ export function CalendarPage() {
     </div>
   );
 }
-

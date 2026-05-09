@@ -14,7 +14,7 @@ export function AuthPage() {
 
   const title = useMemo(() => (mode === "login" ? "Welcome back" : "Create your account"), [mode]);
 
-  const passwordOk = password.length >= 8;
+  const passwordOk = mode === "register" ? password.length >= 8 : password.length >= 1;
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const canSubmit = emailOk && passwordOk && !busy;
 

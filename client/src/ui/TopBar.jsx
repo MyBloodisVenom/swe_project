@@ -10,51 +10,52 @@ export function TopBar({
   onLogout,
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
-      <div style={{ display: "grid", gap: 4 }}>
-        <div className="muted" style={{ fontSize: 12 }}>
-          Time-Block Calendar
-        </div>
-        <div style={{ fontSize: 22, fontWeight: 600 }}>{title}</div>
+    <header className="top-bar">
+      <div>
+        <div className="top-bar__meta">Time-Block Calendar</div>
+        <h1 className="top-bar__title">{title}</h1>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
-        <div className="muted" style={{ fontSize: 12, marginRight: 6 }}>
-          {userEmail}
-        </div>
+      <div className="top-bar__actions">
+        {userEmail ? (
+          <span className="user-chip" title={userEmail}>
+            {userEmail}
+          </span>
+        ) : null}
 
-        <button className="btn" type="button" onClick={onPrev}>
-          Prev
+        <button className="btn btn-sm" type="button" onClick={onPrev} aria-label="Previous period">
+          ← Prev
         </button>
-        <button className="btn" type="button" onClick={onToday}>
+        <button className="btn btn-sm primary" type="button" onClick={onToday}>
           Today
         </button>
-        <button className="btn" type="button" onClick={onNext}>
-          Next
+        <button className="btn btn-sm" type="button" onClick={onNext} aria-label="Next period">
+          Next →
         </button>
 
-        <div style={{ width: 1, height: 28, background: "var(--border)", margin: "0 2px" }} />
+        <div className="top-bar__divider" aria-hidden />
 
-        <button className={`btn ${view === "day" ? "primary" : ""}`} type="button" onClick={() => onChangeView("day")}>
-          Day
-        </button>
-        <button className={`btn ${view === "week" ? "primary" : ""}`} type="button" onClick={() => onChangeView("week")}>
-          Week
-        </button>
-        <button className={`btn ${view === "month" ? "primary" : ""}`} type="button" onClick={() => onChangeView("month")}>
-          Month
-        </button>
+        <div className="segmented" role="group" aria-label="Calendar view">
+          <button className={`btn btn-sm ${view === "day" ? "primary" : ""}`} type="button" onClick={() => onChangeView("day")}>
+            Day
+          </button>
+          <button className={`btn btn-sm ${view === "week" ? "primary" : ""}`} type="button" onClick={() => onChangeView("week")}>
+            Week
+          </button>
+          <button className={`btn btn-sm ${view === "month" ? "primary" : ""}`} type="button" onClick={() => onChangeView("month")}>
+            Month
+          </button>
+        </div>
 
-        <div style={{ width: 1, height: 28, background: "var(--border)", margin: "0 2px" }} />
+        <div className="top-bar__divider" aria-hidden />
 
-        <button className="btn primary" type="button" onClick={onNewBlock}>
-          New block
+        <button className="btn btn-sm primary" type="button" onClick={onNewBlock}>
+          + New block
         </button>
-        <button className="btn" type="button" onClick={onLogout}>
-          Logout
+        <button className="btn btn-sm btn-ghost" type="button" onClick={onLogout}>
+          Log out
         </button>
       </div>
-    </div>
+    </header>
   );
 }
-

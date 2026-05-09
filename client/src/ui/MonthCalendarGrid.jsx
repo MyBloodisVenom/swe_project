@@ -32,25 +32,16 @@ export function MonthCalendarGrid({ monthAnchor, days, blocks, onPickDay, onSele
   }, [days]);
 
   return (
-    <div style={{ display: "grid", gap: 10 }}>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          gap: 8,
-          padding: "0 4px",
-        }}
-      >
+    <div className="month-grid">
+      <div className="month-weekdays">
         {WEEKDAYS.map((w) => (
-          <div key={w} className="muted" style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.02em" }}>
-            {w}
-          </div>
+          <span key={w}>{w}</span>
         ))}
       </div>
 
       <div style={{ display: "grid", gap: 8 }}>
         {weeks.map((week, wi) => (
-          <div key={wi} style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
+          <div key={wi} className="month-week">
             {week.map((day) => {
               const k = dayKey(day);
               const list = blocksByDay.get(k) || [];
@@ -66,6 +57,10 @@ export function MonthCalendarGrid({ monthAnchor, days, blocks, onPickDay, onSele
                 onCreateDraft({ draft: true, date: day });
               }
 
+              const cellClass = ["month-cell", !inMonth ? "month-cell--fade" : "", today ? "month-cell--today" : ""]
+                .filter(Boolean)
+                .join(" ");
+
               return (
                 <div
                   key={day.toISOString()}
@@ -79,28 +74,14 @@ export function MonthCalendarGrid({ monthAnchor, days, blocks, onPickDay, onSele
                       onPickDay(day);
                     }
                   }}
-                  className="card"
-                  title="Click for day view • Double-click for new block"
-                  style={{
-                    minHeight: 108,
-                    padding: "8px 10px",
-                    borderRadius: 14,
-                    cursor: "pointer",
-                    outline: today ? "2px solid rgba(139,92,246,0.55)" : undefined,
-                    background: inMonth ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.01)",
-                    opacity: inMonth ? 1 : 0.55,
-                    display: "grid",
-                    gridTemplateRows: "auto 1fr",
-                    gap: 6,
-                  }}
+                  className={cellClass}
+                  title="Click: day view · Double-click: new block"
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                    <span style={{ fontWeight: 700, fontSize: 13, fontFamily: "var(--mono)", color: today ? "var(--accent)" : "var(--text)" }}>
-                      {format(day, "d")}
-                    </span>
+                    <span className={`month-cell__day ${today ? "month-cell__day--today" : ""}`}>{format(day, "d")}</span>
                     {list.length > 0 ? (
                       <span className="muted" style={{ fontSize: 11 }}>
-                        {list.length} block{list.length === 1 ? "" : "s"}
+                        {list.length}
                       </span>
                     ) : null}
                   </div>
@@ -108,30 +89,16 @@ export function MonthCalendarGrid({ monthAnchor, days, blocks, onPickDay, onSele
                   <div style={{ display: "grid", gap: 4, alignContent: "start", overflow: "hidden" }}>
                     {list.slice(0, 3).map((b) => {
                       const start = toLocal(b.start_time);
-                      const bg =
-                        b.type === "locked"
-                          ? "linear-gradient(180deg, rgba(239,68,68,0.22), rgba(239,68,68,0.1))"
-                          : "linear-gradient(180deg, rgba(139,92,246,0.22), rgba(139,92,246,0.1))";
-                      const border = b.type === "locked" ? "rgba(239,68,68,0.4)" : "rgba(139,92,246,0.4)";
+                      const locked = b.type === "locked";
+                      const pillClass = locked ? "month-block-btn btn btn-sm block-pill--locked" : "month-block-btn btn btn-sm block-pill--flex";
                       return (
                         <button
                           key={b.id}
                           type="button"
-                          className="btn"
+                          className={pillClass}
                           onClick={(e) => {
                             e.stopPropagation();
                             onSelectBlock(b);
-                          }}
-                          style={{
-                            padding: "4px 8px",
-                            borderRadius: 8,
-                            fontSize: 11,
-                            textAlign: "left",
-                            background: bg,
-                            borderColor: border,
-                            overflow: "hidden",
-                            whiteSpace: "nowrap",
-                            textOverflow: "ellipsis",
                           }}
                           title={b.title}
                         >

@@ -68,8 +68,8 @@ export function BlockModal({ open, value, onClose, token, onSaved, onDeleted }) 
 
   useEffect(() => {
     if (!open) return;
-    const t = requestAnimationFrame(() => titleRef.current?.focus());
-    return () => cancelAnimationFrame(t);
+    const id = requestAnimationFrame(() => titleRef.current?.focus());
+    return () => cancelAnimationFrame(id);
   }, [open, value]);
 
   if (!open) return null;

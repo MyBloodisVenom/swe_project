@@ -1,21 +1,38 @@
 # Dependencies
 node_modules/
 
-# Env & secrets (keep .env.example tracked)
+# Environment files (never commit real secrets)
 .env
 .env.*
 !.env.example
+!/server/.env.example
+!/client/.env.example
 
-# Local SQLite (paths may vary; server default is ./data.db)
+# SQLite database and WAL files (local data)
 *.db
 *.db-shm
 *.db-wal
 
-# Builds
+# Build output
 client/dist
 dist/
 
-# Logs & OS
+# Logs and caches
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+*.log
+
+# OS / editor
 .DS_Store
 Thumbs.db
+.idea/
+*.swp
+*.swo
+
+# Optional tooling
+coverage/
+.vscode/*
+!.vscode/extensions.json
