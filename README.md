@@ -1,6 +1,11 @@
-# Time-Block Calendar
+# FocusBlocks
 
-Semester-ready full-stack app: **React (Vite)** calendar UI with **Node/Express** API, **SQLite** storage, **JWT** auth, and **time-block CRUD** with overlap prevention (half-open intervals: touching slots are allowed).
+**FocusBlocks** is a semester-ready full-stack app: **React (Vite)** calendar UI with **Node/Express** API, **SQLite** storage, **JWT** auth, and **time-block CRUD** with overlap prevention (half-open intervals: touching slots are allowed).
+
+## Documentation (course submission)
+
+- [Analysis — requirements, use cases, scope](docs/ANALYSIS.md)
+- [Design — architecture, data model, API, behavior](docs/DESIGN.md)
 
 ## Features
 

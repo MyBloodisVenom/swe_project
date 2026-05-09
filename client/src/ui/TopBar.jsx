@@ -12,7 +12,7 @@ export function TopBar({
   return (
     <header className="top-bar">
       <div>
-        <div className="top-bar__meta">Time-Block Calendar</div>
+        <div className="top-bar__meta">FocusBlocks</div>
         <h1 className="top-bar__title">{title}</h1>
       </div>
 
@@ -35,7 +35,7 @@ export function TopBar({
 
         <div className="top-bar__divider" aria-hidden />
 
-        <div className="segmented" role="group" aria-label="Calendar view">
+        <div className="segmented" role="group" aria-label="FocusBlocks view mode">
           <button className={`btn btn-sm ${view === "day" ? "primary" : ""}`} type="button" onClick={() => onChangeView("day")}>
             Day
           </button>

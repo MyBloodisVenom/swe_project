@@ -46,12 +46,12 @@ export function AuthPage() {
         <div className="auth-head">
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" }} className="muted">
-              Time-Block Calendar
+              FocusBlocks
             </div>
             <h1>{title}</h1>
           </div>
 
-          <div className="segmented" role="tablist" aria-label="Auth mode">
+          <div className="segmented" role="tablist" aria-label="FocusBlocks sign-in">
             <button
               className={`btn btn-sm ${mode === "login" ? "primary" : ""}`}
               type="button"

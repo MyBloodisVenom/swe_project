@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "FocusBlocks — Express API",
   "engines": {
     "node": ">=18.18.0"
   },
