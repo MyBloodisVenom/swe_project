@@ -1,0 +1,116 @@
+:root {
+  --bg: #0b0c10;
+  --panel: #11131a;
+  --panel-2: #151825;
+  --text: #e8eaf2;
+  --muted: #aab0c2;
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: rgba(0, 0, 0, 0.5) 0 20px 40px -20px;
+
+  --accent: #8b5cf6;
+  --accent-2: #22c55e;
+  --danger: #ef4444;
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  font-family: var(--sans);
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 25% 0%, rgba(139, 92, 246, 0.18), transparent 70%),
+    radial-gradient(900px 450px at 75% 15%, rgba(34, 197, 94, 0.12), transparent 70%),
+    var(--bg);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.container {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn.primary {
+  border-color: rgba(139, 92, 246, 0.55);
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.btn.primary:hover {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+.btn.danger {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.18);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 12px;
+  letter-spacing: 0.2px;
+  color: var(--muted);
+}
+
+.input,
+select.input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 10px 12px;
+  color: var(--text);
+  outline: none;
+}
+
+.input:focus {
+  border-color: rgba(139, 92, 246, 0.6);
+}

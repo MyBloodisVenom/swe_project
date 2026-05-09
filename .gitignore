@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Env & secrets (keep .env.example tracked)
+.env
+.env.*
+!.env.example
+
+# Local SQLite (paths may vary; server default is ./data.db)
+*.db
+*.db-shm
+*.db-wal
+
+# Builds
+client/dist
+dist/
+
+# Logs & OS
+npm-debug.log*
+.DS_Store
+Thumbs.db
