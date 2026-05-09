@@ -1,0 +1,8 @@
+{
+  "name": "focusblocks",
+  "private": true,
+  "description": "FocusBlocks — helper scripts (submission zip, etc.)",
+  "scripts": {
+    "submission-zip": "git archive --format=zip -o FocusBlocks-submission.zip HEAD"
+  }
+}

@@ -197,10 +197,33 @@ app.use((req, res) => {
   res.status(404).json({ error: "Not found" });
 });
 
-app.listen(PORT, () => {
+const httpServer = app.listen(PORT, () => {
   console.log(`API listening on http://localhost:${PORT}`);
   if (!isProd) {
     console.log(`[config] SQLite database: ${DB_PATH}`);
   }
 });
+
+function gracefulShutdown(signal) {
+  console.log(`\n[shutdown] ${signal} — closing HTTP and SQLite…`);
+  httpServer.close(() => {
+    try {
+      db.close();
+    } catch {
+      /* already closed */
+    }
+    process.exit(0);
+  });
+  setTimeout(() => {
+    try {
+      db.close();
+    } catch {
+      /* ignore */
+    }
+    process.exit(0);
+  }, 4000).unref();
+}
+
+process.once("SIGINT", () => gracefulShutdown("SIGINT"));
+process.once("SIGTERM", () => gracefulShutdown("SIGTERM"));
 

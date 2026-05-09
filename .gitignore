@@ -17,6 +17,9 @@ node_modules/
 client/dist
 dist/
 
+# Local submission artifact (regenerate with npm run submission-zip)
+FocusBlocks-submission.zip
+
 # Logs and caches
 npm-debug.log*
 yarn-debug.log*

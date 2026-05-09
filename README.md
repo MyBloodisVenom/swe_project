@@ -7,6 +7,20 @@
 - [Analysis — requirements, use cases, scope](docs/ANALYSIS.md)
 - [Design — architecture, data model, API, behavior](docs/DESIGN.md)
 
+### Zip your project (no `data.db` lock drama)
+
+Windows locks SQLite while the API is running. **Stop the server** (Ctrl+C — it now closes the DB cleanly), then build a zip that **only includes tracked source** (no `node_modules`, no `*.db`, no `.env`):
+
+```bash
+# from repo root (after at least one commit)
+git add .
+git commit -m "Submission"
+npm run submission-zip
+```
+
+That writes **`FocusBlocks-submission.zip`** next to this README.  
+PowerShell alternative: `.\scripts\make-submission-zip.ps1`
+
 ## Features
 
 - Register, login, logout
